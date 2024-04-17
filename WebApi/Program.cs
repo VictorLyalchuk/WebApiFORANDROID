@@ -11,8 +11,6 @@ builder.Services.AddDBContext(connection);
 
 // Add services to the container.
 
-builder.Services.AddIdentity();
-
 builder.Services.AddControllers();
 
 builder.Services.AddRepository();
@@ -26,6 +24,8 @@ builder.Services.AddValidator();
 builder.Services.AddAutoMapper();
 
 builder.Services.AddCustomService();
+
+builder.Services.AddIdentity();
 
 var app = builder.Build();
 
