@@ -52,5 +52,39 @@ namespace Core.Services
                 return ex.Message;
             }
         }
+
+        public async Task DeleteImage(string imagePath)
+        {
+            await Task.Run(() =>
+            {
+                string root = _environment.WebRootPath;
+                foreach (int size in sizes)
+                {
+                    string fullRoot = Path.Combine(root, imageFolder);
+                    string imageSizePath = $"{size}_{imagePath}";
+                    string imageFullPath = Path.Combine(fullRoot, imageSizePath);
+                    if (File.Exists(imageFullPath))
+                    {
+                        File.Delete(imageFullPath);
+                    }
+                }
+            });
+        }
+        public async Task<string> UpdateImage(string fileName, IFormFile file)
+        {
+            string root = _environment.WebRootPath;
+            string imageFullPath = Path.Combine(root, fileName);
+            if (File.Exists(imageFullPath))
+            {
+                File.Delete(imageFullPath);
+            }
+
+            using (FileStream fileStream = new FileStream(imageFullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+            return fileName;
+        }
+
     }
 }
