@@ -7,6 +7,5 @@ namespace Core.Interfaces
     {
         Task<string> SaveImage(IFormFile file);
         Task DeleteImage(string imagePath);
-        Task<string> UpdateImage(string fileName, IFormFile file);
     }
 }

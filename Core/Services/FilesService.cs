@@ -69,11 +69,5 @@ namespace Core.Services
                 }
             });
         }
-        public async Task<string> UpdateImage(string fileName, IFormFile file)
-        {
-            await DeleteImage(fileName);
-            return await SaveImage(file);
-        }
-
     }
 }

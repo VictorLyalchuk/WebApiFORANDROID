@@ -6,10 +6,10 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryControllers : Controller
+    public class CategoryController : Controller
     {
         private readonly ICategoryService _category;
-        public CategoryControllers(ICategoryService category)
+        public CategoryController(ICategoryService category)
         {
             _category = category;
         }
@@ -27,7 +27,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("CreateCategory")]
-        public async Task<IActionResult> CreateProduct(CreateCategoryDTO createCategoryDTO)
+        public async Task<IActionResult> CreateProduct([FromForm] CreateCategoryDTO createCategoryDTO)
         {
             await _category.CreateAsync(createCategoryDTO);
             return Ok();
@@ -41,7 +41,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("EditCategory")]
-        public async Task<IActionResult> EditProduct(EditCategoryDTO editCategoryDTO)
+        public async Task<IActionResult> EditProduct([FromForm] EditCategoryDTO editCategoryDTO)
         {
             await _category.EditAsync(editCategoryDTO);
             return Ok();
