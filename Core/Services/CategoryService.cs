@@ -48,8 +48,12 @@ namespace Core.Services
             var category = _mapper.Map<CategoryEntity>(editCategoryDTO);
             if (category.ImagePath != null)
             {
-                await _filesService.DeleteImage(category.ImagePath!);
-                category.ImagePath = await _filesService.SaveImage(editCategoryDTO.ImageFile!);
+                var entity = await _categoryRepository.GetByIDAsync(editCategoryDTO.Id);
+                if (entity.ImagePath != null)
+                {
+                    await _filesService.DeleteImage(category.ImagePath!);
+                    category.ImagePath = await _filesService.SaveImage(editCategoryDTO.ImageFile!);
+                }
             }
             await _categoryRepository.UpdateAsync(category);
             await _categoryRepository.SaveAsync();
