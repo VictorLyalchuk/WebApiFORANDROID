@@ -34,7 +34,10 @@ namespace Core.Services
             var categoryToDelete = await _categoryRepository.GetByIDAsync(id);
             if (categoryToDelete != null)
             {
-                await _filesService.DeleteImage(categoryToDelete.ImagePath!);
+                if (categoryToDelete.ImagePath != null)
+                {
+                    await _filesService.DeleteImage(categoryToDelete.ImagePath!);
+                }
                 await _categoryRepository.DeleteAsync(categoryToDelete);
                 await _categoryRepository.SaveAsync();
             }
@@ -43,15 +46,13 @@ namespace Core.Services
         public async Task EditAsync(EditCategoryDTO editCategoryDTO)
         {
             var category = _mapper.Map<CategoryEntity>(editCategoryDTO);
-            await _categoryRepository.UpdateAsync(category);
-            await _categoryRepository.SaveAsync();
-
             if (category.ImagePath != null)
             {
                 await _filesService.DeleteImage(category.ImagePath!);
                 category.ImagePath = await _filesService.SaveImage(editCategoryDTO.ImageFile!);
             }
-
+            await _categoryRepository.UpdateAsync(category);
+            await _categoryRepository.SaveAsync();
         }
 
         public async Task<List<CategoryDTO>> GetAllAsync()
