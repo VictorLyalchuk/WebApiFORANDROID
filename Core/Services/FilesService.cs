@@ -12,26 +12,20 @@ namespace Core.Services
     public class FilesService : IFilesService
     {
         private const string imageFolder = "uploads";
-        private readonly IWebHostEnvironment _environment;
         int[] sizes = { 320, 600, 1200 };
 
-        public FilesService(IWebHostEnvironment environment)
-        {
-            _environment = environment;
-        }
         public async Task<string> SaveImage(IFormFile file)
         {
             try
             {
-                string root = _environment.WebRootPath;
+                string root = Directory.GetCurrentDirectory();
                 string newNameFile = Guid.NewGuid().ToString();
                 string fileName = $"{newNameFile}.webp";
 
                 foreach (int size in sizes)
                 {
                     string fullFileName = $"{size}_{newNameFile}.webp";
-                    string imagePath = Path.Combine(imageFolder, fullFileName);
-                    string imageFullPath = Path.Combine(root, imagePath);
+                    string imagePath = Path.Combine(root, imageFolder, fullFileName);
                     {
                         using (var image = Image.Load(file.OpenReadStream()))
                         {
@@ -40,7 +34,7 @@ namespace Core.Services
                                 Size = new Size(size, size),
                                 Mode = ResizeMode.Max
                             }));
-                            await image.SaveAsync(imageFullPath, new WebpEncoder());
+                            await image.SaveAsync(imagePath, new WebpEncoder());
                         }
                     }
                 }
@@ -52,38 +46,34 @@ namespace Core.Services
                 return ex.Message;
             }
         }
-
         public async Task DeleteImage(string imagePath)
         {
             await Task.Run(() =>
             {
-                string root = _environment.WebRootPath;
-                foreach (int size in sizes)
+                try
                 {
-                    string fullRoot = Path.Combine(root, imageFolder);
-                    string imageSizePath = $"{size}_{imagePath}";
-                    string imageFullPath = Path.Combine(fullRoot, imageSizePath);
-                    if (File.Exists(imageFullPath))
+                    string root = Directory.GetCurrentDirectory();
+                    foreach (int size in sizes)
                     {
-                        File.Delete(imageFullPath);
+                        string fullRoot = Path.Combine(root, imageFolder);
+                        string imageSizePath = $"{size}_{imagePath}";
+                        string imageFullPath = Path.Combine(fullRoot, imageSizePath);
+                        if (File.Exists(imageFullPath))
+                        {
+                            File.Delete(imageFullPath);
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Помилка при видалені файлу {ex.Message}");
                 }
             });
         }
         public async Task<string> UpdateImage(string fileName, IFormFile file)
         {
-            string root = _environment.WebRootPath;
-            string imageFullPath = Path.Combine(root, fileName);
-            if (File.Exists(imageFullPath))
-            {
-                File.Delete(imageFullPath);
-            }
-
-            using (FileStream fileStream = new FileStream(imageFullPath, FileMode.Create))
-            {
-                await file.CopyToAsync(fileStream);
-            }
-            return fileName;
+            await DeleteImage(fileName);
+            return await SaveImage(file);
         }
 
     }
